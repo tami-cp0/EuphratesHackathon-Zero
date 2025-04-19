@@ -62,12 +62,6 @@ const index = (app, db) => {
     app.get("/memos", isLoggedIn, memosHandler.displayMemos);
     app.post("/memos", isLoggedIn, memosHandler.addMemos);
 
-    // Handle redirect for learning resources link
-    app.get("/learn", isLoggedIn, (req, res) => {
-        // Insecure way to handle redirects by taking redirect url from query string
-        return res.redirect(req.query.url);
-    });
-
     // Research Page
     app.get("/research", isLoggedIn, researchHandler.displayResearch);
 
