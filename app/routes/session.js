@@ -71,8 +71,13 @@ function SessionHandler(db) {
                     return next(err);
                 }
             }
-            
-            req.session.regenerate(() => {
+
+            req.session.regenerate((err) => {
+                if (err) {
+                    console.log("Error: session regeneration failed", err);
+                    return next(err);
+                }
+
                 req.session.userId = user._id;
                 return res.redirect(user.isAdmin ? "/benefits" : "/dashboard");
             });
