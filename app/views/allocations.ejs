@@ -12,11 +12,14 @@
           <div class="form-group">
             <!-- Fix for A1 - 2 NoSQL Injection -->
             <input
-              type="text"
+              type="number"
+              min="0"
+              max="99"
               class="form-control"
               placeholder="Stocks Threshold"
               name="threshold"
             />
+
             <p class="help-block">
               Using the above threshold value, it will return all assets
               allocation above the specified stocks percentage number.
