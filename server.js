@@ -12,13 +12,20 @@ const app = express();
 const routes = require("./app/routes");
 const { port, db, cookieSecret } = require("./config/config");
 
-MongoClient.connect(db, (err, db) => {
+MongoClient.connect(db, {
+  ssl: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}, (err, client) => {
   if (err) {
     console.log("Error: DB: connect");
     console.log(err);
     process.exit(1);
   }
   console.log(`Connected to the database`);
+  
+  // Get database object from client
+  const database = client.db();
 
   app.use(favicon(__dirname + "/app/assets/favicon.ico"));
 
@@ -58,8 +65,8 @@ MongoClient.connect(db, (err, db) => {
   });
   app.locals.marked = marked;
 
-  // App routes
-  routes(app, db);
+  // App routes - pass database instead of client
+  routes(app, database);
 
   http.createServer(app).listen(port, () => {
     console.log(`Express http server listening on port ${port}`);
