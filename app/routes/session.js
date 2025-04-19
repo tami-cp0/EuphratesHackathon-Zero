@@ -106,21 +106,13 @@ function SessionHandler(db) {
       lastName: "",
       emailError: "",
       verifyError: "",
-      csrftoken: req.csrfToken ? req.csrfToken() : "",
       layout: false,
+      csrftoken: req.csrfToken ? req.csrfToken() : "",
       environmentalScripts,
     });
   };
 
-  const validateSignup = (
-    userName,
-    firstName,
-    lastName,
-    password,
-    verify,
-    email,
-    errors
-  ) => {
+  const validateSignup = (userName, firstName, lastName, password, verify, email, errors) => {
     const USER_RE = /^.{1,20}$/;
     const FNAME_RE = /^.{1,100}$/;
     const LNAME_RE = /^.{1,100}$/;
@@ -149,17 +141,16 @@ function SessionHandler(db) {
     }
     if (!PASS_RE.test(password)) {
       errors.passwordError =
-        "Password must be 8 to 18 characters" +
-        " including numbers, lowercase and uppercase letters.";
+        "Password must be 8 to 18 characters including numbers, lowercase and uppercase letters.";
       return false;
     }
     if (password !== verify) {
-      errors.verifyError = "Password must match";
+      errors.verifyError = "Password must match.";
       return false;
     }
     if (email !== "") {
       if (!EMAIL_RE.test(email)) {
-        errors.emailError = "Invalid email address";
+        errors.emailError = "Invalid email address.";
         return false;
       }
     }
@@ -170,48 +161,34 @@ function SessionHandler(db) {
     const { email, userName, firstName, lastName, password, verify } = req.body;
 
     // set these up in case we have an error case
-    const errors = {
-      userName: userName,
-      email: email,
-    };
+    const errors = {};
 
-    if (
-      validateSignup(
-        userName,
-        firstName,
-        lastName,
-        password,
-        verify,
-        email,
-        errors
-      )
-    ) {
+    if (validateSignup(userName, firstName, lastName, password, verify, email, errors)) {
       userDAO.getUserByUserName(userName, (err, user) => {
         if (err) return next(err);
 
         if (user) {
-          errors.userNameError =
-            "User name already in use. Please choose another";
+          errors.userNameError = "User name already in use. Please choose another";
           return res.render("signup", {
             ...errors,
+            userName: userName,
+            firstName: firstName,
+            lastName: lastName,
+            password: password,
+            verify: verify,
+            email: email,
             layout: false,
             csrftoken: req.csrfToken ? req.csrfToken() : "",
             environmentalScripts,
           });
         }
 
-        userDAO.addUser(
-          userName,
-          firstName,
-          lastName,
-          password,
-          email,
-          (err, user) => {
-            if (err) return next(err);
+        userDAO.addUser(userName, firstName, lastName, password, email, (err, user) => {
+          if (err) return next(err);
 
-            //prepare data for the user
-            prepareUserData(user, next);
-            /*
+          //prepare data for the user
+          prepareUserData(user, next);
+          /*
                     sessionDAO.startSession(user._id, (err, sessionId) => {
                         if (err) return next(err);
                         res.cookie("session", sessionId);
@@ -219,34 +196,28 @@ function SessionHandler(db) {
                         return res.render("dashboard", { ...user, environmentalScripts });
                     });
                     */
-            req.session.regenerate(() => {
-              req.session.userId = user._id;
-              // Set userId property. Required for left nav menu links
-              user.userId = user._id;
+          req.session.regenerate(() => {
+            req.session.userId = user._id;
+            // Set userId property. Required for left nav menu links
+            user.userId = user._id;
 
-              return res.render("dashboard", {
-                ...user,
-                environmentalScripts,
-              });
+            return res.render("dashboard", {
+              ...user,
+              environmentalScripts,
             });
-          }
-        );
+          });
+        });
       });
     } else {
       console.log("user did not validate");
       return res.render("signup", {
+        ...errors,
         userName: userName,
         firstName: firstName,
         lastName: lastName,
         password: password,
         verify: verify,
         email: email,
-        userNameError: errors.userNameError,
-        firstNameError: errors.firstNameError,
-        lastNameError: errors.lastNameError,
-        passwordError: errors.passwordError,
-        verifyError: errors.verifyError,
-        emailError: errors.emailError,
         layout: false,
         csrftoken: req.csrfToken ? req.csrfToken() : "",
         environmentalScripts,
