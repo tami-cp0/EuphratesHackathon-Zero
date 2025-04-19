@@ -10,10 +10,7 @@ const http = require("http");
 const marked = require("marked");
 const app = express();
 const routes = require("./app/routes");
-const dotenv = require("dotenv");
 const { port, db, cookieSecret } = require("./config/config");
-
-dotenv.config();
 
 MongoClient.connect(db, (err, db) => {
   if (err) {
@@ -40,6 +37,9 @@ MongoClient.connect(db, (err, db) => {
     })
   );
 
+  // App routes
+  routes(app, db);
+
   // ⬇️ Configure EJS and layout support
   app.set("view engine", "ejs");
   app.set("views", `${__dirname}/app/views`);
@@ -54,9 +54,6 @@ MongoClient.connect(db, (err, db) => {
     sanitize: true,
   });
   app.locals.marked = marked;
-
-  // App routes
-  routes(app, db);
 
   http.createServer(app).listen(port, () => {
     console.log(`Express http server listening on port ${port}`);

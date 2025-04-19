@@ -27,7 +27,7 @@
     "//": "a9 insecure components"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "dev": "cross-env PORT=5000 nodemon",
     "test:e2e": "cross-env NODE_ENV=test cypress open",
     "test:ci": "cross-env NODE_ENV=test cypress run",
@@ -56,7 +56,7 @@
     "grunt-retire": "^0.3.12",
     "jshint": "2.12.0",
     "mocha": "^2.4.5",
-    "nodemon": "^1.19.1",
+    "nodemon": "^1.19.4",
     "selenium-webdriver": "^2.53.2",
     "should": "^8.3.1",
     "zaproxy": "^0.2.0"
