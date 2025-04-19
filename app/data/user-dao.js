@@ -22,7 +22,6 @@ function UserDAO(db) {
             firstName,
             lastName,
             benefitStartDate: this.getRandomFutureDate(),
-            // Fix for A2-1 - Broken Auth
             password: bcrypt.hashSync(password, bcrypt.genSaltSync(12))
         };
 
