@@ -9,8 +9,6 @@ ENV NODE_ENV=production
 WORKDIR /home/node/app
 
 # Create non-root user and set ownership first
-RUN adduser -D node && \
-    chown -R node:node /home/node/app
 
 # Copy node_modules from builder
 COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
