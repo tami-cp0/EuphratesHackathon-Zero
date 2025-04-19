@@ -12,6 +12,7 @@
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^4.13.4",
+    "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.13.0",
     "forever": "^2.0.0",
     "helmet": "^2.0.0",
