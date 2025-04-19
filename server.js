@@ -58,7 +58,7 @@ MongoClient.connect(db, (err, db) => {
   // App routes
   routes(app, db);
 
-  http.createServer(app).listen(port, () => {
-    console.log(`Express http server listening on port ${port}`);
-  });
+  app.listen(port, () => {
+    console.log(`Express server listening on port ${port}`);
+  });  
 });
