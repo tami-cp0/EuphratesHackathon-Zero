@@ -51,9 +51,24 @@ function SessionHandler(db) {
 
   this.handleLoginRequest = (req, res, next) => {
     const { userName, password } = req.body;
+    
+    // Check for empty username or password
+    if (!userName || !password) {
+      return res.render("login", {
+        userName: userName || "",
+        layout: false,
+        password: "",
+        loginError: "Invalid username and/or password",
+        csrftoken: req.csrfToken ? req.csrfToken() : "",
+        environmentalScripts,
+      });
+    }
+    
     userDAO.validateLogin(userName, password, (err, user) => {
       const errorMessage = "Invalid username and/or password";
       if (err) {
+        console.log("Login error:", err);
+        
         if (err.noSuchUser || err.invalidPassword) {
           console.log(
             "Error: attempt to login with invalid user: ",
@@ -73,6 +88,19 @@ function SessionHandler(db) {
         }
       }
 
+      // Make sure user is not null
+      if (!user) {
+        console.log("Error: user object is null but no error was thrown");
+        return res.render("login", {
+          userName: userName,
+          layout: false,
+          password: "",
+          loginError: errorMessage,
+          csrftoken: req.csrfToken ? req.csrfToken() : "",
+          environmentalScripts,
+        });
+      }
+
       req.session.regenerate((err) => {
         if (err) {
           console.log("Error: session regeneration failed", err);
@@ -80,7 +108,6 @@ function SessionHandler(db) {
         }
 
         req.session.userId = user._id;
-
         user.userId = user._id;
 
         return res.redirect(user.isAdmin ? "/benefits" : "/dashboard");
@@ -196,7 +223,12 @@ function SessionHandler(db) {
                         return res.render("dashboard", { ...user, environmentalScripts });
                     });
                     */
-          req.session.regenerate(() => {
+          req.session.regenerate((err) => {
+            if (err) {
+              console.log("Error: session regeneration failed", err);
+              return next(err);
+            }
+            
             req.session.userId = user._id;
             // Set userId property. Required for left nav menu links
             user.userId = user._id;
@@ -237,6 +269,13 @@ function SessionHandler(db) {
 
     userDAO.getUserById(userId, (err, doc) => {
       if (err) return next(err);
+      
+      if (!doc) {
+        console.log("Error: User not found in database");
+        req.session.destroy(() => res.redirect("/login"));
+        return;
+      }
+      
       doc.userId = userId;
       return res.render("dashboard", {
         ...doc,

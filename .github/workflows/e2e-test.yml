@@ -1,4 +1,5 @@
 name: E2E Test
+
 on: [push, pull_request]
 
 jobs:
@@ -9,28 +10,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: ["10.x", "12.x", "14.x"]
+        node-version: ["16.x", "18.x", "20.x"] # Updated from very old versions for security and performance
 
     steps:
-      - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: "npm" # Built-in caching with setup-node v4
 
-      - name: Use cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.npm
-            ~/.cache
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-E2E-${{ hashFiles('package-lock.json') }}
-
-      - name: Install dependencies
+      - name: Install dependencies and verify Cypress
         run: |
           npm ci
           npm run cy:verify
@@ -46,16 +40,17 @@ jobs:
           NODE_ENV=test npm start -- --silent &
           npm run test:ci -- --config video=true
 
-      - name: Prepare cypress artifacts
-        if: failure() && (steps.test-suite.outcome == 'failure')
+      - name: Prepare Cypress artifacts
+        if: failure() && steps.test-suite.outcome == 'failure'
         working-directory: ./test/e2e
-        run: >
-          mkdir -p "screenshots" && find "screenshots" -mindepth 1 -maxdepth 1 -type d
-          -exec sh -c 'mv -- "videos/$(basename "$1").mp4" "$1"' _ {} \;
+        run: |
+          mkdir -p screenshots
+          find screenshots -mindepth 1 -maxdepth 1 -type d \
+            -exec sh -c 'mv -- "videos/$(basename "$1").mp4" "$1"' _ {} \;
 
-      - name: Upload cypress artifacts
-        if: failure() && (steps.test-suite.outcome == 'failure')
-        uses: actions/upload-artifact@v2
+      - name: Upload Cypress artifacts
+        if: failure() && steps.test-suite.outcome == 'failure'
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-artifacts-node${{ matrix.node-version }}
           path: test/e2e/screenshots

@@ -1,4 +1,5 @@
 const ResearchDAO = require("../data/research-dao").ResearchDAO;
+const ESAPI = require("node-esapi");
 const needle = require("needle");
 const {
     environmentalScripts
@@ -8,11 +9,15 @@ function ResearchHandler(db) {
     "use strict";
 
     const researchDAO = new ResearchDAO(db);
+    const BASE = "https://finance.yahoo.com/quote/";
 
     this.displayResearch = (req, res) => {
 
         if (req.query.symbol) {
-            const url = req.query.url + req.query.symbol;
+
+            const safeSymbol = ESAPI.encoder().encodeForURL(symbol);
+            const url = BASE + safeSymbol;
+
             return needle.get(url, (error, newResponse, body) => {
                 if (!error && newResponse.statusCode === 200) {
                     res.writeHead(200, {
