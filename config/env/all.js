@@ -1,6 +1,6 @@
 const { config } = require("dotenv");
 
-config()
+config();
 
 // default app configuration
 const port = process.env.PORT || 4000;
