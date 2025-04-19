@@ -1,0 +1,56 @@
+<% layout('layout') %> <% var title = "Allocations"; %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Filter Assets based on Stock Performance</h3>
+      </div>
+
+      <div class="panel-body">
+        <form action="/allocations/<%= userId %>" method="get" role="search">
+          <div class="form-group">
+            <!-- Fix for A1 - 2 NoSQL Injection -->
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Stocks Threshold"
+              name="threshold"
+            />
+            <p class="help-block">
+              Using the above threshold value, it will return all assets
+              allocation above the specified stocks percentage number.
+            </p>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+
+    <% allocations.forEach(function(allocation) { %>
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <strong
+          >Asset Allocations for <%= allocation.firstName %> <%=
+          allocation.lastName %></strong
+        >
+      </div>
+      <div class="panel-body">
+        <p>
+          Domestic Stocks:
+          <strong><%= allocation.stocks %> %</strong>
+        </p>
+        <p>
+          Funds:
+          <strong><%= allocation.funds %> %</strong>
+        </p>
+        <p>
+          Bonds:
+          <strong><%= allocation.bonds %> %</strong>
+        </p>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+</div>
