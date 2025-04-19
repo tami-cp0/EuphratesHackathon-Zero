@@ -1,18 +1,25 @@
-FROM node:12-alpine
-ENV WORKDIR /usr/src/app/
-WORKDIR $WORKDIR
-COPY package*.json $WORKDIR
-RUN npm install --production --no-cache
+# Build dependencies
+FROM node:16-alpine AS builder
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci --production --no-cache
 
-FROM node:12-alpine
-ENV USER node
-ENV WORKDIR /home/$USER/app
-WORKDIR $WORKDIR
-COPY --from=0 /usr/src/app/node_modules node_modules
-RUN chown $USER:$USER $WORKDIR
-COPY --chown=node . $WORKDIR
-# In production environment uncomment the next line
-#RUN chown -R $USER:$USER /home/$USER && chmod -R g-s,o-rx /home/$USER && chmod -R o-wrx $WORKDIR
-# Then all further actions including running the containers should be done under non-root user.
-USER $USER
+FROM node:16-alpine
+ENV NODE_ENV=production
+WORKDIR /home/node/app
+
+# Create non-root user and set ownership first
+RUN adduser -D node && \
+    chown -R node:node /home/node/app
+
+# Copy node_modules from builder
+COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
+
+# Copy application files
+COPY --chown=node:node . .
+
+# Switch to non-root user
+USER node
+
 EXPOSE 4000
+CMD ["node", "app.js"]
