@@ -1,5 +1,8 @@
-After #Build dependencies....
-
+# Build dependencies
+FROM node:16-alpine AS builder
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci --production --no-cache
 
 FROM node:16-alpine
 ENV NODE_ENV=production
@@ -16,4 +19,4 @@ COPY --chown=node:node . .
 
 USER node
 EXPOSE 4000
-CMD ["node", "server.js"]
+CMD ["node", "server.js"]
