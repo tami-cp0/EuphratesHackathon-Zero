@@ -15,7 +15,7 @@ const envConf =
 
 const appConfig = { ...allConf, ...envConf };
 
-console.log(`Current Config:`);
-console.log(util.inspect(appConfig, false, null));
+// console.log(`Current Config:`);
+// console.log(util.inspect(appConfig, false, null));
 
 module.exports = appConfig;
