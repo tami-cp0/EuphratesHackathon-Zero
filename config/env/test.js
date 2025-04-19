@@ -1,7 +1,3 @@
-const { config } = require("dotenv");
-
-config();
-
 module.exports = {
   // If you want to debug regression tests, you will need the following.
   zapHostName: process.env.ZAP_HOSTNAME_TEST,
