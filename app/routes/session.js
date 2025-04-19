@@ -195,6 +195,19 @@ function SessionHandler(db) {
           return res.render("signup", {
             ...errors,
             layout: false,
+            userName: "",
+            password: "",
+            verify: "",
+            passwordError: "",
+            email: "",
+            userNameError: "",
+            firstNameError: "",
+            lastNameError: "",
+            firstName: "",
+            lastName: "",
+            emailError: "",
+            verifyError: "",
+            csrftoken: req.csrfToken ? req.csrfToken() : "",
             environmentalScripts,
           });
         }
@@ -236,6 +249,19 @@ function SessionHandler(db) {
       return res.render("signup", {
         ...errors,
         layout: false,
+        userName: "",
+        password: "",
+        verify: "",
+        passwordError: "",
+        email: "",
+        userNameError: "",
+        firstNameError: "",
+        lastNameError: "",
+        firstName: "",
+        lastName: "",
+        emailError: "",
+        verifyError: "",
+        csrftoken: req.csrfToken ? req.csrfToken() : "",
         environmentalScripts,
       });
     }
