@@ -10,10 +10,7 @@ const http = require("http");
 const marked = require("marked");
 const app = express();
 const routes = require("./app/routes");
-const dotenv = require("dotenv");
 const { port, db, cookieSecret } = require("./config/config");
-
-dotenv.config();
 
 MongoClient.connect(db, (err, db) => {
   if (err) {
@@ -44,7 +41,13 @@ MongoClient.connect(db, (err, db) => {
   app.set("view engine", "ejs");
   app.set("views", `${__dirname}/app/views`);
   app.use(expressLayouts);
-  app.set("layout", "layout"); // means "app/views/layout.ejs"
+  app.set("layout", "layout"); // default layout: app/views/layout.ejs
+
+  // ⬇️ Automatically use tutorial layout for /tutorial/* routes
+  app.use("/tutorial", (req, res, next) => {
+    res.locals.layout = "tutorial/layout"; // maps to app/views/tutorial/layout.ejs
+    next();
+  });
 
   // Static assets
   app.use(express.static(`${__dirname}/app/assets`));

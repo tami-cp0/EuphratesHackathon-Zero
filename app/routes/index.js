@@ -9,7 +9,7 @@ const tutorialRouter = require("./tutorial");
 const ErrorHandler = require("./error").errorHandler;
 
 const index = (app, db) => {
-
+  
     "use strict";
 
     const sessionHandler = new SessionHandler(db);
@@ -52,34 +52,28 @@ const index = (app, db) => {
     app.post("/contributions", isLoggedIn, contributionsHandler.handleContributionsUpdate);
 
     // Benefits Page
-    app.get("/benefits", isLoggedIn, benefitsHandler.displayBenefits);
-    app.post("/benefits", isLoggedIn, benefitsHandler.updateBenefits);
-    /* Fix for A7 - checks user role to implement  Function Level Access Control
      app.get("/benefits", isLoggedIn, isAdmin, benefitsHandler.displayBenefits);
      app.post("/benefits", isLoggedIn, isAdmin, benefitsHandler.updateBenefits);
-     */
 
-    // Allocations Page
-    app.get("/allocations/:userId", isLoggedIn, allocationsHandler.displayAllocations);
+  // Allocations Page
+  app.get(
+    "/allocations/:userId",
+    isLoggedIn,
+    allocationsHandler.displayAllocations
+  );
 
-    // Memos Page
-    app.get("/memos", isLoggedIn, memosHandler.displayMemos);
-    app.post("/memos", isLoggedIn, memosHandler.addMemos);
+  // Memos Page
+  app.get("/memos", isLoggedIn, memosHandler.displayMemos);
+  app.post("/memos", isLoggedIn, memosHandler.addMemos);
 
-    // Handle redirect for learning resources link
-    app.get("/learn", isLoggedIn, (req, res) => {
-        // Insecure way to handle redirects by taking redirect url from query string
-        return res.redirect(req.query.url);
-    });
+  // Research Page
+  app.get("/research", isLoggedIn, researchHandler.displayResearch);
 
-    // Research Page
-    app.get("/research", isLoggedIn, researchHandler.displayResearch);
+  // Mount tutorial router
+  app.use("/tutorial", tutorialRouter);
 
-    // Mount tutorial router
-    app.use("/tutorial", tutorialRouter);
-
-    // Error handling middleware
-    app.use(ErrorHandler);
+  // Error handling middleware
+  app.use(ErrorHandler);
 };
 
 module.exports = index;
