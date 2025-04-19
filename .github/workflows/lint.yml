@@ -30,10 +30,6 @@ jobs:
         
       - name: Run linter
         run: npx jshint .
-          
-      - name: Run npm audit
-        run: npm audit --production
-        continue-on-error: true
         
       - name: Check for secrets
         uses: gitleaks/gitleaks-action@v2
