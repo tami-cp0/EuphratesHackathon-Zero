@@ -9,7 +9,7 @@ const tutorialRouter = require("./tutorial");
 const ErrorHandler = require("./error").errorHandler;
 
 const index = (app, db) => {
-
+  
     "use strict";
 
     const sessionHandler = new SessionHandler(db);
@@ -55,21 +55,31 @@ const index = (app, db) => {
      app.get("/benefits", isLoggedIn, isAdmin, benefitsHandler.displayBenefits);
      app.post("/benefits", isLoggedIn, isAdmin, benefitsHandler.updateBenefits);
 
-    // Allocations Page
-    app.get("/allocations/:userId", isLoggedIn, allocationsHandler.displayAllocations);
+  // Allocations Page
+  app.get(
+    "/allocations/:userId",
+    isLoggedIn,
+    allocationsHandler.displayAllocations
+  );
 
-    // Memos Page
-    app.get("/memos", isLoggedIn, memosHandler.displayMemos);
-    app.post("/memos", isLoggedIn, memosHandler.addMemos);
+  // Memos Page
+  app.get("/memos", isLoggedIn, memosHandler.displayMemos);
+  app.post("/memos", isLoggedIn, memosHandler.addMemos);
 
-    // Research Page
-    app.get("/research", isLoggedIn, researchHandler.displayResearch);
+  // Handle redirect for learning resources link
+  app.get("/learn", isLoggedIn, (req, res) => {
+    // Insecure way to handle redirects by taking redirect url from query string
+    return res.redirect(req.query.url);
+  });
 
-    // Mount tutorial router
-    app.use("/tutorial", tutorialRouter);
+  // Research Page
+  app.get("/research", isLoggedIn, researchHandler.displayResearch);
 
-    // Error handling middleware
-    app.use(ErrorHandler);
+  // Mount tutorial router
+  app.use("/tutorial", tutorialRouter);
+
+  // Error handling middleware
+  app.use(ErrorHandler);
 };
 
 module.exports = index;
