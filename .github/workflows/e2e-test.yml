@@ -4,30 +4,25 @@ on: [push, pull_request]
 
 jobs:
   e2e-test:
-    name: Node.js E2E Test
+    name: Node.js
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        node-version: ["10.x", "12.x", "14.x"]
+        node-version: ["16.x", "18.x", "20.x"] # Updated from very old versions for security and performance
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Cache npm and Cypress
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.npm
-            ~/.cache
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+          cache: "npm" # Built-in caching with setup-node v4
 
       - name: Install dependencies and verify Cypress
         run: |
@@ -37,7 +32,7 @@ jobs:
       - name: Start MongoDB
         run: |
           docker run -d -p 27017:27017 mongo:4.0
-          timeout 60s bash -c 'until nc -z localhost 27017; do sleep 2; done'
+          timeout 60s bash -c 'until nc -z -w 2 localhost 27017 && echo MongoDB ready; do sleep 2; done'
 
       - name: Run E2E test suite
         id: test-suite
@@ -47,15 +42,15 @@ jobs:
 
       - name: Prepare Cypress artifacts
         if: failure() && steps.test-suite.outcome == 'failure'
+        working-directory: ./test/e2e
         run: |
-          mkdir -p test/e2e/screenshots
-          if [ -d "test/e2e/videos" ]; then
-            cp -r test/e2e/videos/* test/e2e/screenshots/
-          fi
+          mkdir -p screenshots
+          find screenshots -mindepth 1 -maxdepth 1 -type d \
+            -exec sh -c 'mv -- "videos/$(basename "$1").mp4" "$1"' _ {} \;
 
       - name: Upload Cypress artifacts
         if: failure() && steps.test-suite.outcome == 'failure'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-artifacts-node${{ matrix.node-version }}
           path: test/e2e/screenshots
