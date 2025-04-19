@@ -4,6 +4,8 @@ Being lightweight, fast, and scalable, Node.js is becoming a widely adopted plat
 
 ## Getting Started
 
+Video submission link: https://youtu.be/uvc7hPhYw04
+
 ##### Default user accounts
 
 The database comes pre-populated with these user accounts created as part of the seed data -
@@ -168,4 +170,24 @@ Code licensed under the [Apache License v2.0](http://www.apache.org/licenses/LIC
 
 ---
 
-Let me know if you'd like a version with markdown formatting previewed or saved to a file.
+## Security Fixes
+
+1. Upgraded marked, cypress, grunt-cli to latest stable version
+2. Replacing consolidate and swig with ejs:
+   **Swig vulnerability**: Severity: critical
+   Arbitrary local file read vulnerability during template rendering  - https://github.com/advisories/GHSA-2rq5-699j-x7p6
+   This is a problem because of the code in the learn handler
+3. Fix Server-Side JavaScript Injection in contributions.js. This vulnerability allows arbitrary code execution through the eval() function.
+4. Fix NoSQL injection by validating inputs and replacing string interpolation with MongoDB query operators - allocation-dao.js
+5. Fix CRLF injection by replacing necessary control characters - session.js
+6. Fix broken auth by outputting a general error message for failed login attempts.
+7. Prevent session fixation by regenerating sessionId on login - session.js
+8. Fix Insecure DOR - take user id from session instead of from URL param - session.js
+9. Fix checks user role to implement Function Level Access Control - index.js
+10. Removed server-side redirects since it is only used once with no logic.
+11. Fix for Sensitive Data Exposure
+12. Fix for broken auth, we hash passwords before storing.
+13. Fixed the lint workflow to use updated versions, check for hard coded secrets
+14. Prevent SSRF by encoding user input for symbol, hard coding the url on the backend and removing hidden url field on research page
+15. Updated docker file to use a newer node version and run as a non-root user.
+16. Removed all hardcoded secrets.
